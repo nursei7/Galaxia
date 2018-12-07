@@ -25,17 +25,18 @@ class Object:
 class Fighter(Object):
     def __init__(self, x, y, r, img, w, h):
         Object.__init__(self, x, y, r, img, w, h)
-        self.keyHandler = {LEFT : False, RIGHT : False, UP : False, DOWN : False}
+        self.health = 100
+        self.keyHandler = {LEFT : False, RIGHT : False, UP : False, DOWN : False, SHIFT: False}
     
     def update(self):
         if self.keyHandler[LEFT]:
-            self.x -= 10
+            self.x -= 7        #spaceship moves left
         elif self.keyHandler[RIGHT]:
-            self.x += 10
+            self.x += 7 #spaceship moves right
         if self.keyHandler[UP]:
-            self.y -= 10
+            self.y -= 7 #spaceship goes up
         elif self.keyHandler[DOWN]:
-            self.y +=10
+            self.y +=7 #spaceship goes down
         
         if self.x - self.r < 0:
              self.x = self.r
@@ -45,6 +46,7 @@ class Fighter(Object):
             self.y = 720 - self.r
         elif self.y - self.r < 0:
             self.y = self.r
+            
         
         
 
@@ -59,6 +61,8 @@ class Game:
     def __init__(self, w, h):
         self.w = w
         self.h = h
+        self.status = "menu"
+        self.pause = False
         self.backgroundImg = loadImage(path + '/images/background.jpg')
         self.fighter = Fighter(self.w//2, self.h - 45, 45, 'fighter.png', 90,90)
 
@@ -76,10 +80,24 @@ g = Game(680, 720)
 def setup():
     size(g.w, g.h)
     background(0)
-    
+wp = loadImage(path+'/images/wp.png')
 def draw():
-    background(0)
-    g.display()
+    if g.status == 'menu':
+        background(0)
+        image(wp,0,0)
+        textSize(34)
+        fill(0)
+        text('Press shift to start', g.w//4, g.h//3)
+        text('Arrows to move. Space to fire', g.w//4-30, g.h//3+50)
+    elif g.status == 'play':
+        if not g.pause:
+            background(0)
+            g.display()
+        
+    
+    
+    
+    
     
     
 def keyPressed():
@@ -91,6 +109,11 @@ def keyPressed():
         g.fighter.keyHandler[UP] = True
     elif keyCode == DOWN:
         g.fighter.keyHandler[DOWN] = True
+    if keyCode == SHIFT:
+        g.fighter.keyHandler[SHIFT] = True
+        g.status = 'play'
+    
+        
     
         
 def keyReleased():
@@ -98,10 +121,13 @@ def keyReleased():
         g.fighter.keyHandler[LEFT] = False
     elif keyCode == RIGHT:
         g.fighter.keyHandler[RIGHT] = False
-    elif keyCode == UP:
+    if keyCode == UP:
         g.fighter.keyHandler[UP] = False
     elif keyCode == DOWN:
         g.fighter.keyHandler[DOWN] = False
+    if keyCode == SHIFT:
+        g.fighter.keyHandler[SHIFT] = False
+    
         
     
     
