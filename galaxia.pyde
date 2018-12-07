@@ -2,16 +2,26 @@ import os
 path = os.getcwd()
 
 
+#The main object class
 class Object:
     def __init__(self, x, y, r, img):
         self.x = x
         self.y = y
         self.r = r
-        self.img = img
+        self.img = loadImage(path+'/images/'+img)
         self.vx = 0
         self.vy = 0
+    def update(self):
+        self.x += vx
+        self.x += vy
         
+    def display(self):
+        self.update()
+        image(self.img, self.x-self.r, self.y- 2*self.r)
+    
+    
         
+#class for the spaceship
 class Fighter(Object):
     def __init__(self, x, y, r, img):
         Object.__init__(self, x, y, r, img)
@@ -19,18 +29,20 @@ class Fighter(Object):
     
     def update(self):
         if self.keyHandler[LEFT]:
-            self.vx = -5
-        if self.keyHandler[RIGHT]:
-            self.vx = 5
-        else:
-            self.vx = 0
-        
-        self.x += vx
+            self.x -= 10
+        elif self.keyHandler[RIGHT]:
+            self.x += 10
+        if self.keyHandler[UP]:
+            self.y -= 10
+        elif self.keyHandler[DOWN]:
+            self.y +=10
         
         if self.x - self.r < 0:
              self.x = self.r
-        elif self.x + self.r > 900:
-             self.x = 900 - self.r
+        elif self.x + self.r > 680:
+             self.x = 680 - self.r
+      #  if self.y
+        
         
 
 
@@ -45,14 +57,16 @@ class Game:
         self.w = w
         self.h = h
         self.backgroundImg = loadImage(path + '/images/background.jpg')
-        #self.fighter = Fighter(w//2, h, 
+        self.fighter = Fighter(self.w//2, self.h + 45, 45, 'fighter.png')
 
 
 
     def display(self):
         image(self.backgroundImg,0,0)
+        self.fighter.display()
+        
 
-g = Game(700, 900)
+g = Game(680, 720)
 
         
         
@@ -70,6 +84,21 @@ def keyPressed():
         g.fighter.keyHandler[LEFT] = True
     elif keyCode == RIGHT:
         g.fighter.keyHandler[RIGHT] = True
+    elif keyCode == UP:
+        g.fighter.keyHandler[UP] = True
+    elif keyCode == DOWN:
+        g.fighter.keyHandler[DOWN] = True
+    
+        
+def keyReleased():
+    if keyCode == LEFT:
+        g.fighter.keyHandler[LEFT] = False
+    elif keyCode == RIGHT:
+        g.fighter.keyHandler[RIGHT] = False
+    elif keyCode == UP:
+        g.fighter.keyHandler[UP] = False
+    elif keyCode == DOWN:
+        g.fighter.keyHandler[DOWN] = False
         
     
     
