@@ -4,7 +4,7 @@ path = os.getcwd()
 
 #The main object class
 class Object:
-    def __init__(self, x, y, r, img):
+    def __init__(self, x, y, r, img, w, h):
         self.x = x
         self.y = y
         self.r = r
@@ -17,14 +17,14 @@ class Object:
         
     def display(self):
         self.update()
-        image(self.img, self.x-self.r, self.y- 2*self.r)
+        image(self.img, self.x-self.r, self.y- self.r)
     
     
         
 #class for the spaceship
 class Fighter(Object):
-    def __init__(self, x, y, r, img):
-        Object.__init__(self, x, y, r, img)
+    def __init__(self, x, y, r, img, w, h):
+        Object.__init__(self, x, y, r, img, w, h)
         self.keyHandler = {LEFT : False, RIGHT : False, UP : False, DOWN : False}
     
     def update(self):
@@ -41,7 +41,10 @@ class Fighter(Object):
              self.x = self.r
         elif self.x + self.r > 680:
              self.x = 680 - self.r
-      #  if self.y
+        if self.y + self.r > 720:
+            self.y = 720 - self.r
+        elif self.y - self.r < 0:
+            self.y = self.r
         
         
 
@@ -57,7 +60,7 @@ class Game:
         self.w = w
         self.h = h
         self.backgroundImg = loadImage(path + '/images/background.jpg')
-        self.fighter = Fighter(self.w//2, self.h + 45, 45, 'fighter.png')
+        self.fighter = Fighter(self.w//2, self.h - 45, 45, 'fighter.png', 90,90)
 
 
 
