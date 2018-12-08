@@ -55,12 +55,14 @@ class Asteroids(Object):
     def __init__(self,x, y, r, img):
         Spaceship.__init(self, x, y, r)
 
-        
+       
 
 class Game:
     def __init__(self, w, h):
         self.w = w
         self.h = h
+        self.frames = 0
+        self.y = 10
         self.status = "menu"
         self.pause = False
         self.backgroundImg = loadImage(path + '/images/background.jpg')
@@ -69,8 +71,15 @@ class Game:
 
 
     def display(self):
-        image(self.backgroundImg,0,0)
+        
+        print(self.y)
+        image(self.backgroundImg, 0, 0 - (self.h - self.y))
+        image(self.backgroundImg, 0, self.y+1)
         self.fighter.display()
+        self.y += 10
+        self.y %= self.h
+        
+        
         
 
 g = Game(680, 720)
