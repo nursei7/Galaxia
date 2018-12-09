@@ -1,6 +1,6 @@
 import os
 path = os.getcwd()
-
+#hellowhatup
 
 #The main object class
 class Object:
