@@ -1,4 +1,5 @@
 import os
+from random import randint
 path = os.getcwd()
 
 
@@ -17,7 +18,7 @@ class Object:
         
     def display(self):
         self.update()
-        image(self.img, self.x-self.r, self.y- self.r)
+        image(self.img, self.x-self.r, self.y - self.r)
     
     
         
@@ -51,9 +52,14 @@ class Fighter(Object):
         
 
 
-class Asteroids(Object):
-    def __init__(self,x, y, r, img):
-        Spaceship.__init(self, x, y, r)
+class Asteroid(Object):
+    def __init__(self, x, y, r, img, w, h):
+        Object.__init__(self, x, y, r, img, w, h)
+        self.vy = randint(2, 12)
+    def update(self):
+       # g.asteroids.append(g.ast[randint(0,3)])
+        for i in g.ast:
+            i.y += self.vy
 
        
 
@@ -62,23 +68,34 @@ class Game:
         self.w = w
         self.h = h
         self.frames = 0
-        self.y = 10
+        self.y = 0
         self.status = "menu"
         self.pause = False
         self.backgroundImg = loadImage(path + '/images/background.jpg')
         self.fighter = Fighter(self.w//2, self.h - 45, 45, 'fighter.png', 90,90)
+        self.ast = []
+        self.ast.append(Asteroid(randint(45, self.w - 45), 0 - 50, 42, 'ast1.png', 100, 100))
+        self.ast.append(Asteroid(randint(95,self.w - 95), 0 - 109, 95, 'ast2.png', 250, 270))
+        self.ast.append(Asteroid(randint(31, self.w - 31), 0 - 50, 31, 'ast3.png', 100, 100))
+        self.ast.append(Asteroid(randint(44, self.w - 44), 0 - 44, 43, 'ast4.png', 150, 200))
+        #self.asteroids = []
+        
+        
 
 
 
     def display(self):
         
-        print(self.y)
         image(self.backgroundImg, 0, 0 - (self.h - self.y))
         image(self.backgroundImg, 0, self.y+1)
+        rect(10, 10, self.fighter.health, 15)
+        fill(0, 250, 0)
         self.fighter.display()
-        self.y += 10
+        self.y += 4
         self.y %= self.h
-        
+        for i in self.ast:
+            i.display()
+        #update in 
         
         
 
@@ -87,6 +104,7 @@ g = Game(680, 720)
         
         
 def setup():
+    frameRate(60)
     size(g.w, g.h)
     background(0)
 wp = loadImage(path+'/images/wp.png')
