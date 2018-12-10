@@ -12,23 +12,25 @@ class Object:
         self.img = loadImage(path+'/images/'+img)
         self.vx = 0
         self.vy = 0
+        self.h = h
+        self.w = w
     def update(self):
         self.x += vx
         self.x += vy
-        
+
     def display(self):
         self.update()
         image(self.img, self.x-self.r, self.y - self.r)
-    
-    
-        
+
+
+
 #class for the spaceship
 class Fighter(Object):
     def __init__(self, x, y, r, img, w, h):
         Object.__init__(self, x, y, r, img, w, h)
         self.health = 100
         self.keyHandler = {LEFT : False, RIGHT : False, UP : False, DOWN : False, SHIFT: False}
-    
+
     def update(self):
         if self.keyHandler[LEFT]:
             self.x -= 7        #spaceship moves left
@@ -38,7 +40,7 @@ class Fighter(Object):
             self.y -= 7 #spaceship goes up
         elif self.keyHandler[DOWN]:
             self.y +=7 #spaceship goes down
-        
+
         if self.x - self.r < 0:
              self.x = self.r
         elif self.x + self.r > 680:
@@ -47,21 +49,44 @@ class Fighter(Object):
             self.y = 720 - self.r
         elif self.y - self.r < 0:
             self.y = self.r
-            
-        
-        
+
+
+
 
 
 class Asteroid(Object):
-    def __init__(self, x, y, r, img, w, h):
+    def __init__(self, x, y, r, img, w, h, health):
         Object.__init__(self, x, y, r, img, w, h)
-        self.vy = randint(2, 12)
+        self.vy = randint(2, 14)
+        self.health = health
     def update(self):
        # g.asteroids.append(g.ast[randint(0,3)])
-        for i in g.ast:
-            i.y += self.vy
+        self.y += self.vy
+        if self.y - 2 * self.r > 720:  #sending asteroid back
+            self.y = 0 - randint(100,  350)
+            self.x = randint(self.r, 680 - self.r)
 
-       
+        if self.distance(g.fighter) <= self.r +g.fighter.r:
+             self.y = 0 - randint(100,  350)
+             self.x = randint(self.r, 680 - self.r)
+             if self.r == 95:
+                 g.fighter.health = 0
+                 g.status = 'gameover'
+             else:
+                g.fighter.health -=10
+                if  g.fighter.health == 0:
+                    g.status = 'gameover'
+
+
+
+
+
+    def distance(self, f):
+        return ((self.x - f.x)**2+(self.y - f.y)**2)**0.5
+
+
+
+
 
 class Game:
     def __init__(self, w, h):
@@ -74,18 +99,24 @@ class Game:
         self.backgroundImg = loadImage(path + '/images/background.jpg')
         self.fighter = Fighter(self.w//2, self.h - 45, 45, 'fighter.png', 90,90)
         self.ast = []
-        self.ast.append(Asteroid(randint(45, self.w - 45), 0 - 50, 42, 'ast1.png', 100, 100))
-        self.ast.append(Asteroid(randint(95,self.w - 95), 0 - 109, 95, 'ast2.png', 250, 270))
-        self.ast.append(Asteroid(randint(31, self.w - 31), 0 - 50, 31, 'ast3.png', 100, 100))
-        self.ast.append(Asteroid(randint(44, self.w - 44), 0 - 44, 43, 'ast4.png', 150, 200))
-        #self.asteroids = []
-        
-        
+        self.ast.append(Asteroid(randint(45, self.w - 45), 0 - 50-300, 42, 'ast1.png', 100, 100, 1))
+        self.ast.append(Asteroid(randint(95,self.w - 95), 0 - 109-300, 95, 'ast2.png', 250, 270, 3))
+        self.ast.append(Asteroid(randint(31, self.w - 31), 0 - 50-300, 31, 'ast3.png', 100, 100, 1))
+        self.ast.append(Asteroid(randint(44, self.w - 44), 0 - 44-300, 43, 'ast4.png', 150, 200, 1))
+        for i in range(6):
+            self.ast.append(Asteroid(randint(44, self.w - 44), 0 - 44-randint(200, 700), 43, 'ast4.png', 150, 200, 1))
+            self.ast.append(Asteroid(randint(44, self.w - 44), 0 - 44-randint(200, 700), 42, 'ast1.png', 100, 100, 1))
+            self.ast.append(Asteroid(randint(31, self.w - 31), 0 - 50-randint(200, 700), 43, 'ast3.png', 100, 100, 1))
+
+
+
+
+
 
 
 
     def display(self):
-        
+
         image(self.backgroundImg, 0, 0 - (self.h - self.y))
         image(self.backgroundImg, 0, self.y+1)
         rect(10, 10, self.fighter.health, 15)
@@ -96,13 +127,13 @@ class Game:
         for i in self.ast:
             i.display()
         #update in 
-        
-        
+
+
 
 g = Game(680, 720)
 
-        
-        
+
+
 def setup():
     frameRate(60)
     size(g.w, g.h)
@@ -120,13 +151,25 @@ def draw():
         if not g.pause:
             background(0)
             g.display()
-        
-    
-    
-    
-    
-    
-    
+    elif g.status == 'gameover':
+         background(0)
+         textSize(34)
+         text('GAME OVER', g.w//4, g.h//3)
+         text('Press shift to restart', g.w//4-30, g.h//3+50)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def keyPressed():
     if keyCode == LEFT:
         g.fighter.keyHandler[LEFT] = True
@@ -138,11 +181,15 @@ def keyPressed():
         g.fighter.keyHandler[DOWN] = True
     if keyCode == SHIFT:
         g.fighter.keyHandler[SHIFT] = True
-        g.status = 'play'
-    
-        
-    
-        
+        if g.status == 'menu':
+            g.status = 'play'
+        if g.status == 'gameover':
+            g.status == 'play'
+            g.__init__(680, 720)
+
+
+
+
 def keyReleased():
     if keyCode == LEFT:
         g.fighter.keyHandler[LEFT] = False
@@ -154,7 +201,3 @@ def keyReleased():
         g.fighter.keyHandler[DOWN] = False
     if keyCode == SHIFT:
         g.fighter.keyHandler[SHIFT] = False
-    
-        
-    
-    
