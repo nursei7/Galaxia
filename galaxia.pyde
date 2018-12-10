@@ -12,6 +12,8 @@ class Object:
         self.img = loadImage(path+'/images/'+img)
         self.vx = 0
         self.vy = 0
+        self.h = h
+        self.w = w
     def update(self):
         self.x += vx
         self.x += vy
@@ -55,11 +57,15 @@ class Fighter(Object):
 class Asteroid(Object):
     def __init__(self, x, y, r, img, w, h):
         Object.__init__(self, x, y, r, img, w, h)
-        self.vy = randint(2, 12)
+        self.vy = randint(2, 14)
     def update(self):
        # g.asteroids.append(g.ast[randint(0,3)])
-        for i in g.ast:
-            i.y += self.vy
+        self.y += self.vy
+        if self.y - 2 * self.r > 720:
+            self.y = 0 - randint(100,  350)
+            self.x = randint(self.r, 680 - self.r)
+  
+   
 
        
 
@@ -74,12 +80,18 @@ class Game:
         self.backgroundImg = loadImage(path + '/images/background.jpg')
         self.fighter = Fighter(self.w//2, self.h - 45, 45, 'fighter.png', 90,90)
         self.ast = []
-        self.ast.append(Asteroid(randint(45, self.w - 45), 0 - 50, 42, 'ast1.png', 100, 100))
-        self.ast.append(Asteroid(randint(95,self.w - 95), 0 - 109, 95, 'ast2.png', 250, 270))
-        self.ast.append(Asteroid(randint(31, self.w - 31), 0 - 50, 31, 'ast3.png', 100, 100))
-        self.ast.append(Asteroid(randint(44, self.w - 44), 0 - 44, 43, 'ast4.png', 150, 200))
-        #self.asteroids = []
+        self.ast.append(Asteroid(randint(45, self.w - 45), 0 - 50-300, 42, 'ast1.png', 100, 100))
+        self.ast.append(Asteroid(randint(95,self.w - 95), 0 - 109-300, 95, 'ast2.png', 250, 270))
+        self.ast.append(Asteroid(randint(31, self.w - 31), 0 - 50-300, 31, 'ast3.png', 100, 100))
+        self.ast.append(Asteroid(randint(44, self.w - 44), 0 - 44-300, 43, 'ast4.png', 150, 200))
+        for i in range(6):
+            self.ast.append(Asteroid(randint(44, self.w - 44), 0 - 44-randint(200, 700), 43, 'ast4.png', 150, 200))
+            self.ast.append(Asteroid(randint(44, self.w - 44), 0 - 44-randint(200, 700), 42, 'ast1.png', 100, 100))
+            self.ast.append(Asteroid(randint(31, self.w - 31), 0 - 50-randint(200, 700), 43, 'ast3.png', 100, 100))
+
+       
         
+
         
 
 
