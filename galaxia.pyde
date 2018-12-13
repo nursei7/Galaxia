@@ -29,7 +29,7 @@ class Fighter(Object):
     def __init__(self, x, y, r, img, w, h):
         Object.__init__(self, x, y, r, img, w, h)
         self.health = 100
-        self.keyHandler = {LEFT : False, RIGHT : False, UP : False, DOWN : False, SHIFT: False, TAB : False}
+        self.keyHandler = {LEFT : False, RIGHT : False, UP : False, DOWN : False, SHIFT: False, ALT : False}
     
     def update(self):
         if self.keyHandler[LEFT]:
@@ -50,10 +50,11 @@ class Fighter(Object):
         elif self.y - self.r < 0:
             self.y = self.r
             
+
+            
 class Shoot(Object):
     def  __init__(self, x, y, r, img, w, h):
         Object.__init__(self, x, y, r, img, w, h)
-        
     def update(self):
         self.y -= 15
         
@@ -85,6 +86,16 @@ class Asteroid(Object):
                 g.fighter.health -=10
                 if  g.fighter.health == 0:
                     g.status = 'gameover'
+   
+        for i in g.shoots:
+            if self.distance(i) <=self.r + i.r:
+                self.y = 0 - randint(100,  350)
+                self.x = randint(self.r, 680 - self.r)
+                g.shoots.remove(i)
+                
+                
+             
+                
 
         
         
@@ -107,14 +118,14 @@ class Game:
         self.pause = False
         self.backgroundImg = loadImage(path + '/images/background.jpg')
         self.fighter = Fighter(self.w//2, self.h - 45, 45, 'fighter.png', 90,90)
-        self.shoot = Shoot(300, 700, 10, 'shoot.png', 20, 41)
+        self.shoots = []
         self.ast = []
         self.ast.append(Asteroid(randint(27, self.w - 27), 0 - 50-300, 27, 'ast1.png', 70, 70, 1))
         self.ast.append(Asteroid(randint(64,self.w - 64), 0 - 109-300, 64, 'ast2.png', 170, 184, 3))
-        self.ast.append(Asteroid(randint(31, self.w - 31), 0 - 50-300, 31, 'ast3.png', 100, 100, 1))
-        self.ast.append(Asteroid(randint(24, self.w - 24), 0 - 44-300, 24, 'ast4.png', 90, 120, 1))
-        for i in range(6):
-            self.ast.append(Asteroid(randint(24, self.w - 24), 0 - 44-randint(200, 700), 24, 'ast4.png', 90, 120, 1))
+        self.ast.append(Asteroid(randint(31, self.w - 31), 0 - 50-300, 34, 'ast3.png', 100, 100, 1))
+        self.ast.append(Asteroid(randint(24, self.w - 24), 0 - 44-300, 26, 'ast4.png', 90, 120, 1))
+        for i in range(3):
+            self.ast.append(Asteroid(randint(24, self.w - 24), 0 - 44-randint(200, 700), 26, 'ast4.png', 90, 120, 1))
             self.ast.append(Asteroid(randint(27, self.w - 27), 0 - 44-randint(200, 700), 27, 'ast1.png', 70, 70, 1))
             self.ast.append(Asteroid(randint(31, self.w - 31), 0 - 50-randint(200, 700), 31, 'ast3.png', 100, 100, 1))
 
@@ -136,7 +147,9 @@ class Game:
         self.y %= self.h
         for i in self.ast:
             i.display()
-        self.shoot.display()
+        for i in self.shoots:
+            i.display()
+        
         #update in 
         
         
@@ -157,7 +170,7 @@ def draw():
         textSize(34)
         fill(0)
         text('Press shift to start', g.w//4, g.h//3)
-        text('Arrows to move. Space to fire', g.w//4-30, g.h//3+50)
+        text('Arrows to move. Alt to fire', g.w//4-30, g.h//3+50)
     elif g.status == 'play':
         if not g.pause:
             background(0)
@@ -182,9 +195,11 @@ def draw():
     
     
 def keyPressed():
-    if keyCode == TAB:
-        g.fighter.keyHandler[TAB] = True
-        
+
+    if keyCode == ALT:
+        g.fighter.keyHandler[ALT] = True
+        g.shoots.append(Shoot(g.fighter.x, g.fighter.y, 10, 'shoot.png', 20, 41))
+     
     if keyCode == LEFT:
         g.fighter.keyHandler[LEFT] = True
     elif keyCode == RIGHT:
@@ -215,6 +230,8 @@ def keyReleased():
         g.fighter.keyHandler[DOWN] = False
     if keyCode == SHIFT:
         g.fighter.keyHandler[SHIFT] = False
+    if keyCode == ALT:
+        g.fighter.keyHandler[ALT] = False
     
         
     
