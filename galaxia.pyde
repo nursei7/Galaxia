@@ -58,6 +58,20 @@ class Shoot(Object):
     def update(self):
         self.y -= 15
         
+class Explosion(Object):
+    def __init__(self, x, y, r, img, w, h):
+        Object.__init__(self, x, y, r, img, w, h)
+        self.f = 0
+    def update(self):
+        if int(self.f) == 11:
+            g.explosions.remove(self)
+            del self
+        self.f = (self.f+0.1)%10
+  #  def display(self):
+     #   image(img, self.x - self.r, self.y-self.r, self.w, self.h, int(self.f)*self.w, ((int(self.f))%3-1)*self.w, 
+        
+        
+        
         
             
         
@@ -67,7 +81,7 @@ class Shoot(Object):
 class Asteroid(Object):
     def __init__(self, x, y, r, img, w, h, health):
         Object.__init__(self, x, y, r, img, w, h)
-        self.vy = randint(2, 14)
+        self.vy = randint(2, 10)
         self.health = health
     def update(self):
        # g.asteroids.append(g.ast[randint(0,3)])
@@ -80,11 +94,10 @@ class Asteroid(Object):
              self.y = 0 - randint(100,  350)
              self.x = randint(self.r, 680 - self.r)
              if self.r == 64:
-                 g.fighter.health = 0
-                 g.status = 'gameover'
+                 g.fighter.health -= 20
              else:
                 g.fighter.health -=10
-                if  g.fighter.health == 0:
+             if  g.fighter.health == 0:
                     g.status = 'gameover'
    
         for i in g.shoots:
@@ -92,6 +105,11 @@ class Asteroid(Object):
                 self.y = 0 - randint(100,  350)
                 self.x = randint(self.r, 680 - self.r)
                 g.shoots.remove(i)
+          #      g.explotions.append(Explosion((self.x+i.x)*0.5, (self.y+i.y)*0.5, , 'expl.png', 120, 120))
+            if i.y < -50:
+                g.shoots.remove(i)
+                
+        
                 
                 
              
@@ -102,7 +120,7 @@ class Asteroid(Object):
     
     
     def distance(self, f):
-        return ((self.x - f.x)**2+(self.y - f.y)**2)**0.5
+        return ((self.x - f.x)**2+(self.y - f.y)**2)**(0.500)
   
    
 
@@ -120,14 +138,15 @@ class Game:
         self.fighter = Fighter(self.w//2, self.h - 45, 45, 'fighter.png', 90,90)
         self.shoots = []
         self.ast = []
+        self.explosions = []
         self.ast.append(Asteroid(randint(27, self.w - 27), 0 - 50-300, 27, 'ast1.png', 70, 70, 1))
         self.ast.append(Asteroid(randint(64,self.w - 64), 0 - 109-300, 64, 'ast2.png', 170, 184, 3))
         self.ast.append(Asteroid(randint(31, self.w - 31), 0 - 50-300, 34, 'ast3.png', 100, 100, 1))
         self.ast.append(Asteroid(randint(24, self.w - 24), 0 - 44-300, 26, 'ast4.png', 90, 120, 1))
         for i in range(3):
-            self.ast.append(Asteroid(randint(24, self.w - 24), 0 - 44-randint(200, 700), 26, 'ast4.png', 90, 120, 1))
-            self.ast.append(Asteroid(randint(27, self.w - 27), 0 - 44-randint(200, 700), 27, 'ast1.png', 70, 70, 1))
-            self.ast.append(Asteroid(randint(31, self.w - 31), 0 - 50-randint(200, 700), 31, 'ast3.png', 100, 100, 1))
+            self.ast.append(Asteroid(randint(24, self.w - 24), 0 - 44-randint(300, 800), 26, 'ast4.png', 90, 120, 1))
+            self.ast.append(Asteroid(randint(27, self.w - 27), 0 - 44-randint(300, 800), 27, 'ast1.png', 70, 70, 1))
+            self.ast.append(Asteroid(randint(31, self.w - 31), 0 - 50-randint(300, 800), 31, 'ast3.png', 100, 100, 1))
 
        
         
@@ -149,6 +168,8 @@ class Game:
             i.display()
         for i in self.shoots:
             i.display()
+    #    for i in self.explosions:
+     #       i.display()
         
         #update in 
         
