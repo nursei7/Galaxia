@@ -74,7 +74,20 @@ class Explosion(Object):
        
 
 
-
+class Health(Object):
+    def __init__(self, x, y, r, img, w, h):
+        Object.__init__(self, x, y, r, img, w, h)
+    def update(self):
+        self.inc = 100
+        self.y += 10
+        if self.distance(g.fighter) <= self.r + g.fighter.r:
+            g.fighter.health = 100
+            self.y = -15000 - self.inc
+            self.x = randint(self.r, g.w-self.r)
+    
+    def distance(self, f):
+       return ((self.x - f.x)**2+(self.y - f.y)**2)**(0.500)
+ 
 
 
 
@@ -141,6 +154,7 @@ class Game:
        self.pause = False
        self.backgroundImg = loadImage(path + '/images/background.jpg')
        self.fighter = Fighter(self.w//2, self.h - 45, 45, 'fighter.png', 90,90)
+       self.hlth = Health(randint(27, 680 - 27), -500, 27, 'hlth.png', 60,60)
        self.shoots = []
        self.ast = []
        self.explosions = []
@@ -177,8 +191,8 @@ class Game:
            i.display()
        for i in self.explosions:
            i.display()
-
-       #update in 
+       self.hlth.display()
+    
 
 
 
