@@ -1,6 +1,8 @@
+add_library('minim')
 import os
 from random import randint
 path = os.getcwd()
+player = Minim(this)
 
 
 #The main object class
@@ -28,6 +30,7 @@ class Fighter(Object):
        Object.__init__(self, x, y, r, img, w, h)
        self.health = 100
        self.up = False
+       self.shootSound = player.loadFile( path+'/sounds/shoot.wav')
        self.keyHandler = {LEFT : False, RIGHT : False, UP : False, DOWN : False, SHIFT: False, ALT : False}
 
    def update(self):
@@ -80,12 +83,14 @@ class Health(Object):
         self.inc = 100
         self.y += 10
         if self.distance(g.fighter) <= self.r + g.fighter.r:
+            bonus.rewind()
+            bonus.play()
             g.fighter.health = 100
             self.y = -15000 - self.inc
             self.x = randint(self.r, g.w-self.r)
     
     def distance(self, f):
-       return ((self.x - f.x)**2+(self.y - f.y)**2)**(0.500)
+       return (abs(abs((self.x - f.x))**2+abs((self.y - f.y))**2)**(0.500))
    
 class Upgrade(Object):
     def __init__(self, x, y, r, img, w,h):
@@ -94,13 +99,16 @@ class Upgrade(Object):
         self.inc = 100
         self.y +=10
         if self.distance(g.fighter) <= self.r + g.fighter.r:
+            bonus.rewind()
+            bonus.play()
             g.fighter.up = True
             self.y = -17000 - self.inc
             self.x = (randint(self.r, g.w - self.r))
         
     
     def distance(self, f):
-       return ((self.x - f.x)**2+(self.y - f.y)**2)**(0.500)
+       return (abs((self.x - f.x)**2+(self.y - f.y)**2))**(0.500)
+   
         
  
 
@@ -123,8 +131,11 @@ class Asteroid(Object):
 
        if self.distance(g.fighter) <= self.r +g.fighter.r:
             g.fighter.up = False
+            self.vy = randint(2, 10)
+            exp.rewind()
+            exp.play()
             g.explosions.append(Explosion(((self.x+g.fighter.x)*0.5), ((self.y+g.fighter.y)*0.5),64 , 'expl2.png', 128, 128))
-            self.y = 0 - randint(100,  350)
+            self.y = 0 - randint(200,  400)
             self.x = randint(self.r, 680 - self.r)
             if self.r == 64:
                 g.fighter.health -= 20
@@ -135,8 +146,10 @@ class Asteroid(Object):
 
        for i in g.shoots:
            if self.distance(i) <=self.r + i.r:
+               exp.rewind()
+               exp.play()
                g.explosions.append(Explosion(((self.x+i.x)*0.5), ((self.y+i.y)*0.5),64 , 'expl2.png', 128, 128))
-               self.y = 0 - randint(100,  350)
+               self.y = 0 - randint(200,  400)
                self.x = randint(self.r, 680 - self.r)
                g.shoots.remove(i)
                g.scores +=1
@@ -154,8 +167,8 @@ class Asteroid(Object):
 
 
    def distance(self, f):
-       return ((self.x - f.x)**2+(self.y - f.y)**2)**(0.500)
-
+       return (abs((self.x - f.x)**2+(self.y - f.y)**2))**(0.500)
+   
 
 
 
@@ -213,8 +226,10 @@ class Game:
        self.upgr.display()
     
 
-
-
+bonus = player.loadFile(path+'/sounds/bonus.wav')
+op = player.loadFile(path+'/sounds/opening.mp3')
+bm = player.loadFile(path+'/sounds/bm.mp3')
+exp = player.loadFile(path+'/sounds/explosion.wav')
 g = Game(680, 720)
 
 
@@ -224,17 +239,22 @@ def setup():
    size(g.w, g.h)
 wp = loadImage(path+'/images/wp.png')
 def draw():
-   if g.status == 'menu':
+    
+    if g.status == 'menu':
+       op.play()
        background(0)
        image(wp,0,0)
        textSize(34)
        fill(0)
        text('Press shift to start', g.w//4, g.h//3)
        text('Arrows to move. Alt to fire', g.w//4-30, g.h//3+50)
-   elif g.status == 'play':
+    elif g.status == 'play':
+       op.pause()
+       op.rewind()
+       bm.play()
        if not g.pause:
            g.display()
-   elif g.status == 'gameover':
+    elif g.status == 'gameover':
         background(0)
         textSize(34)
         text('GAME OVER', g.w//4, g.h//3)
@@ -256,6 +276,8 @@ def draw():
 def keyPressed():
 
    if keyCode == ALT:
+       g.fighter.shootSound.rewind()
+       g.fighter.shootSound.play()
        if g.fighter.up ==False:
            g.shoots.append(Shoot(g.fighter.x, g.fighter.y, 10, 'shoot.png', 20, 41))
        else:
