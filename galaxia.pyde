@@ -15,9 +15,7 @@ class Object:
        self.h = h
        self.w = w
    def update(self):
-       self.x += vx
-       self.x += vy
-
+       self.x += self.vx
    def display(self):
        self.update()
        image(self.img, self.x-self.r, self.y - self.r)
@@ -29,6 +27,7 @@ class Fighter(Object):
    def __init__(self, x, y, r, img, w, h):
        Object.__init__(self, x, y, r, img, w, h)
        self.health = 100
+       self.up = False
        self.keyHandler = {LEFT : False, RIGHT : False, UP : False, DOWN : False, SHIFT: False, ALT : False}
 
    def update(self):
@@ -87,6 +86,22 @@ class Health(Object):
     
     def distance(self, f):
        return ((self.x - f.x)**2+(self.y - f.y)**2)**(0.500)
+   
+class Upgrade(Object):
+    def __init__(self, x, y, r, img, w,h):
+        Object.__init__(self, x,y,r,img,w,h)
+    def update(self):
+        self.inc = 100
+        self.y +=10
+        if self.distance(g.fighter) <= self.r + g.fighter.r:
+            g.fighter.up = True
+            self.y = -17000 - self.inc
+            self.x = (randint(self.r, g.w - self.r))
+        
+    
+    def distance(self, f):
+       return ((self.x - f.x)**2+(self.y - f.y)**2)**(0.500)
+        
  
 
 
@@ -100,13 +115,15 @@ class Asteroid(Object):
        self.health = health
    def update(self):
        self.y += self.vy
-       if self.y - 2 * self.r > 720:  #sending asteroid back
+       if self.y - 2 * self.r > 720:  #sending asteroid back home
            self.y = 0 - randint(100,  350)
            self.x = randint(self.r, 680 - self.r)
            self.vy = randint(2, 10)
            #assign new velocity
 
        if self.distance(g.fighter) <= self.r +g.fighter.r:
+            g.fighter.up = False
+            g.explosions.append(Explosion(((self.x+g.fighter.x)*0.5), ((self.y+g.fighter.y)*0.5),64 , 'expl2.png', 128, 128))
             self.y = 0 - randint(100,  350)
             self.x = randint(self.r, 680 - self.r)
             if self.r == 64:
@@ -154,7 +171,8 @@ class Game:
        self.pause = False
        self.backgroundImg = loadImage(path + '/images/background.jpg')
        self.fighter = Fighter(self.w//2, self.h - 45, 45, 'fighter.png', 90,90)
-       self.hlth = Health(randint(27, 680 - 27), -500, 27, 'hlth.png', 60,60)
+       self.hlth = Health(randint(27, 680 - 27), -1500, 27, 'hlth.png', 60,60)
+       self.upgr = Upgrade(randint(40, 640), 50, 40, 'upgrade.png',80,82)
        self.shoots = []
        self.ast = []
        self.explosions = []
@@ -192,6 +210,7 @@ class Game:
        for i in self.explosions:
            i.display()
        self.hlth.display()
+       self.upgr.display()
     
 
 
@@ -237,8 +256,12 @@ def draw():
 def keyPressed():
 
    if keyCode == ALT:
-       g.fighter.keyHandler[ALT] = True
-       g.shoots.append(Shoot(g.fighter.x, g.fighter.y, 10, 'shoot.png', 20, 41))
+       if g.fighter.up ==False:
+           g.shoots.append(Shoot(g.fighter.x, g.fighter.y, 10, 'shoot.png', 20, 41))
+       else:
+           g.shoots.append(Shoot(g.fighter.x+18, g.fighter.y, 10, 'shoot.png', 20, 41))
+           g.shoots.append(Shoot(g.fighter.x-18, g.fighter.y, 10, 'shoot.png', 20, 41))
+           
 
    if keyCode == LEFT:
        g.fighter.keyHandler[LEFT] = True
